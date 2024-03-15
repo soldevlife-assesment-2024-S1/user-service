@@ -8,10 +8,24 @@ import (
 )
 
 type Config struct {
-	Redis         RedisConfig
-	HttpServer    HttpServerConfig
-	HttpClient    HttpClientConfig
-	Logger        LoggerConfig
+	Redis      RedisConfig      `envconfig:"redis"`
+	HttpServer HttpServerConfig `envconfig:"http_server"`
+	HttpClient HttpClientConfig `envconfig:"http_client"`
+	Logger     LoggerConfig     `envconfig:"logger"`
+	Database   DatabaseConfig   `envconfig:"database"`
+}
+
+type DatabaseConfig struct {
+	Host         string `envconfig:"database_host"`
+	Port         int    `envconfig:"database_port"`
+	Username     string `envconfig:"database_username"`
+	Password     string `envconfig:"database_password"`
+	DBName       string `envconfig:"database_db_name"`
+	SSL          string `envconfig:"database_ssl"`
+	SchemaName   string `envconfig:"database_schema_name"`
+	MaxIdleConns int    `envconfig:"database_max_idle_conns"`
+	MaxOpenConns int    `envconfig:"database_max_open_conns"`
+	Timeout      int    `envconfig:"database_timeout"`
 }
 
 type RedisConfig struct {
@@ -53,7 +67,7 @@ type LoggerConfig struct {
 func InitConfig() *Config {
 	var Cfg Config
 
-	err := envconfig.Process("user_service", &Cfg)
+	err := envconfig.Process("", &Cfg)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

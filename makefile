@@ -1,8 +1,16 @@
 .PHONY: build clean development and deploy
 
+populate-env:
+	@echo "Populating env..."
+	set -a
+	sleep 1
+	source .env
+	sleep 1
+	set +a
+
 run:
 	@echo "Running application..."
-	doppler run --command="go run cmd/main.go"
+	go run cmd/main.go
 
 clean-tools:
 	@echo "Cleaning tools..."

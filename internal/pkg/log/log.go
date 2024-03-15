@@ -21,6 +21,7 @@ type LoggerConf struct {
 type Logger interface {
 	Info(ctx context.Context, msg string, meta interface{})
 	Error(ctx context.Context, msg string, meta interface{})
+	Debug(ctx context.Context, msg string, meta interface{})
 }
 
 func SetupLogger() *LoggerConf {
@@ -69,6 +70,11 @@ func GetLogger() Logger {
 func (l *LoggerConf) Info(ctx context.Context, msg string, meta interface{}) {
 	metaField := zap.Any("meta", meta)
 	l.withTraceInfo(ctx).dep.Info(msg, metaField)
+}
+
+func (l *LoggerConf) Debug(ctx context.Context, msg string, meta interface{}) {
+	metaField := zap.Any("meta", meta)
+	l.withTraceInfo(ctx).dep.Debug(msg, metaField)
 }
 
 func (l *LoggerConf) Error(ctx context.Context, msg string, meta interface{}) {
