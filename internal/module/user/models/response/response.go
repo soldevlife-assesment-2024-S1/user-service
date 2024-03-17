@@ -27,6 +27,7 @@ type ValidateTokenResponse struct {
 
 type GetProfileResponse struct {
 	ID             int    `json:"id"`
+	UserID         int    `json:"user_id"`
 	Address        string `json:"address"`
 	District       string `json:"district"`
 	City           string `json:"city"`

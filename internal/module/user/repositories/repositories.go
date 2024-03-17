@@ -18,17 +18,59 @@ type repositories struct {
 
 // FindProfileByID implements Repositories.
 func (r *repositories) FindProfileByID(ctx context.Context, id int) (entity.Profile, error) {
-	panic("unimplemented")
+	query := `SELECT id, user_id, address, district, city, state, country, region, phone, personal_id, type_personal_id, created_at, updated_at FROM profiles WHERE id = $1`
+
+	var profile entity.Profile
+	err := r.db.GetContext(ctx, &profile, query, id)
+
+	// check row not found
+	if err == sql.ErrNoRows {
+		return profile, errors.NotFound("record not found")
+	}
+
+	if err != nil {
+		return profile, errors.InternalServerError(fmt.Sprintf("error finding profile by id: %s", err.Error()))
+	}
+
+	return profile, nil
 }
 
 // FindUserByEmail implements Repositories.
 func (r *repositories) FindUserByEmail(ctx context.Context, email string) (entity.User, error) {
-	panic("unimplemented")
+	query := `SELECT id, first_name, last_name, email, password, created_at, updated_at FROM users WHERE email = $1`
+
+	var user entity.User
+	err := r.db.GetContext(ctx, &user, query, email)
+
+	// check row not found
+	if err == sql.ErrNoRows {
+		return user, errors.NotFound("record not found")
+	}
+
+	if err != nil {
+		return user, errors.InternalServerError(fmt.Sprintf("error finding user by email: %s", err.Error()))
+	}
+
+	return user, nil
 }
 
 // FindUserByID implements Repositories.
 func (r *repositories) FindUserByID(ctx context.Context, id int) (entity.User, error) {
-	panic("unimplemented")
+	query := `SELECT id, first_name, last_name, email, password, created_at, updated_at FROM users WHERE id = $1`
+
+	var user entity.User
+	err := r.db.GetContext(ctx, &user, query, id)
+
+	// check row not found
+	if err == sql.ErrNoRows {
+		return user, errors.NotFound("record not found")
+	}
+
+	if err != nil {
+		return user, errors.InternalServerError(fmt.Sprintf("error finding user by id: %s", err.Error()))
+	}
+
+	return user, nil
 }
 
 // UpsertProfile implements Repositories.

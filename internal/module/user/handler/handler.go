@@ -33,7 +33,7 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 		return helpers.RespError(ctx, h.Log, err)
 	}
 
-	return nil
+	return helpers.RespSuccess(ctx, h.Log, nil, "register success")
 }
 
 func (h *UserHandler) Login(ctx *fiber.Ctx) error {
@@ -47,7 +47,13 @@ func (h *UserHandler) Login(ctx *fiber.Ctx) error {
 		return helpers.RespError(ctx, h.Log, errors.BadRequest(err.Error()))
 	}
 
-	return nil
+	// call usecase
+	resp, err := h.Usecase.Login(ctx.Context(), &req)
+	if err != nil {
+		return helpers.RespError(ctx, h.Log, err)
+	}
+
+	return helpers.RespSuccess(ctx, h.Log, resp, "login success")
 }
 
 func (h *UserHandler) GetUser(ctx *fiber.Ctx) error {
@@ -61,7 +67,13 @@ func (h *UserHandler) GetUser(ctx *fiber.Ctx) error {
 		return helpers.RespError(ctx, h.Log, errors.BadRequest(err.Error()))
 	}
 
-	return nil
+	// call usecase
+	resp, err := h.Usecase.GetUser(ctx.Context(), &req)
+	if err != nil {
+		return helpers.RespError(ctx, h.Log, err)
+	}
+
+	return helpers.RespSuccess(ctx, h.Log, resp, "get user success")
 }
 
 func (h *UserHandler) UpdateUser(ctx *fiber.Ctx) error {
@@ -80,7 +92,7 @@ func (h *UserHandler) UpdateUser(ctx *fiber.Ctx) error {
 		return helpers.RespError(ctx, h.Log, err)
 	}
 
-	return nil
+	return helpers.RespSuccess(ctx, h.Log, nil, "update user success")
 }
 
 // private
