@@ -21,6 +21,9 @@ func Initialize(app *fiber.App, handler *handler.UserHandler) *fiber.App {
 	v1.Post("/login", handler.Login)
 	v1.Get("/user", handler.GetUser)
 	v1.Put("/user", handler.UpdateUser)
+	v1.Post("/profile", handler.CreateProfile)
+	v1.Get("/profile", handler.GetProfile)
+	v1.Put("/profile", handler.UpdateProfile)
 
 	private := Api.Group("/private")
 	private.Get("/validateToken", handler.GetUser)

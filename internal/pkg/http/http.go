@@ -22,7 +22,7 @@ func SetupHttpEngine() *fiber.App {
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "*",
-		AllowHeaders:     "Origin, Content-Type, Accept",
+		AllowHeaders:     "Content-Type",
 		AllowMethods:     "GET, POST, PUT, DELETE, OPTIONS",
 		AllowCredentials: false,
 	}),

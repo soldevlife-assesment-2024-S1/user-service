@@ -44,7 +44,7 @@ func (r *repositories) FindUserByEmail(ctx context.Context, email string) (entit
 
 	// check row not found
 	if err == sql.ErrNoRows {
-		return user, errors.NotFound("record not found")
+		return user, nil
 	}
 
 	if err != nil {
@@ -59,11 +59,12 @@ func (r *repositories) FindUserByID(ctx context.Context, id int) (entity.User, e
 	query := `SELECT id, first_name, last_name, email, password, created_at, updated_at FROM users WHERE id = $1`
 
 	var user entity.User
+
 	err := r.db.GetContext(ctx, &user, query, id)
 
 	// check row not found
 	if err == sql.ErrNoRows {
-		return user, errors.NotFound("record not found")
+		return user, nil
 	}
 
 	if err != nil {

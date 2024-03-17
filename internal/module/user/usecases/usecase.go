@@ -19,7 +19,7 @@ type usecases struct {
 }
 
 // GetProfile implements Usecases.
-func (u *usecases) GetProfile(ctx context.Context, payload *request.GetProfileRequest) (response.GetProfileResponse, error) {
+func (u *usecases) GetProfile(ctx context.Context, payload *request.GetProfile) (response.GetProfileResponse, error) {
 	// check if record exists
 	profile, err := u.repositories.FindProfileByID(ctx, payload.ID)
 	if err != nil {
@@ -44,7 +44,7 @@ func (u *usecases) GetProfile(ctx context.Context, payload *request.GetProfileRe
 }
 
 // GetUser implements Usecases.
-func (u *usecases) GetUser(ctx context.Context, payload *request.GetUserRequest) (response.GetUserResponse, error) {
+func (u *usecases) GetUser(ctx context.Context, payload *request.GetUser) (response.GetUserResponse, error) {
 	// check if record exists
 	user, err := u.repositories.FindUserByID(ctx, payload.ID)
 	if err != nil {
@@ -62,7 +62,7 @@ func (u *usecases) GetUser(ctx context.Context, payload *request.GetUserRequest)
 }
 
 // Login implements Usecases.
-func (u *usecases) Login(ctx context.Context, payload *request.LoginRequest) (response.LoginResponse, error) {
+func (u *usecases) Login(ctx context.Context, payload *request.Login) (response.LoginResponse, error) {
 	// check if user exists
 	user, err := u.repositories.FindUserByEmail(ctx, payload.Email)
 	if err != nil {
@@ -96,7 +96,7 @@ func (u *usecases) Login(ctx context.Context, payload *request.LoginRequest) (re
 }
 
 // Register implements Usecases.
-func (u *usecases) Register(ctx context.Context, payload *request.RegisterRequest) error {
+func (u *usecases) Register(ctx context.Context, payload *request.Register) error {
 	// check if user already exists
 	userExisting, err := u.repositories.FindUserByEmail(ctx, payload.Email)
 	if err != nil {
@@ -128,8 +128,41 @@ func (u *usecases) Register(ctx context.Context, payload *request.RegisterReques
 	return nil
 }
 
+// CreateProfile implements Usecases.
+func (u *usecases) CreateProfile(ctx context.Context, payload *request.CreateProfile) error {
+	// check if user exists
+	userExisting, err := u.repositories.FindUserByID(ctx, payload.UserID)
+	if err != nil {
+		return errors.InternalServerError(fmt.Sprintf("error finding user by id: %s", err.Error()))
+	}
+
+	if userExisting.ID == 0 {
+		return errors.BadRequest("user not found")
+	}
+
+	// create profile
+	profile := entity.Profile{
+		UserID:         payload.UserID,
+		Address:        payload.Address,
+		District:       payload.District,
+		City:           payload.City,
+		State:          payload.State,
+		Country:        payload.Country,
+		Region:         payload.Region,
+		Phone:          payload.Phone,
+		PersonalID:     payload.PersonalID,
+		TypePersonalID: payload.TypePersonalID,
+	}
+
+	if err := u.repositories.UpsertProfile(ctx, &profile); err != nil {
+		return errors.InternalServerError(fmt.Sprintf("error upserting profile: %s", err.Error()))
+	}
+
+	return nil
+}
+
 // UpdateProfile implements Usecases.
-func (u *usecases) UpdateProfile(ctx context.Context, payload *request.UpdateProfileRequest) error {
+func (u *usecases) UpdateProfile(ctx context.Context, payload *request.UpdateProfile) error {
 	// check if record exists
 	profileExisting, err := u.repositories.FindProfileByID(ctx, payload.ID)
 	if err != nil {
@@ -159,7 +192,7 @@ func (u *usecases) UpdateProfile(ctx context.Context, payload *request.UpdatePro
 }
 
 // UpdateUser implements Usecases.
-func (u *usecases) UpdateUser(ctx context.Context, payload *request.UpdateUserRequest) error {
+func (u *usecases) UpdateUser(ctx context.Context, payload *request.UpdateUser) error {
 	// check if record exists
 	userExisting, err := u.repositories.FindUserByID(ctx, payload.ID)
 	if err != nil {
@@ -183,18 +216,19 @@ func (u *usecases) UpdateUser(ctx context.Context, payload *request.UpdateUserRe
 }
 
 // ValidateToken implements Usecases.
-func (u *usecases) ValidateToken(ctx context.Context, payload *request.ValidateTokenRequest) error {
+func (u *usecases) ValidateToken(ctx context.Context, payload *request.ValidateToken) error {
 	panic("unimplemented")
 }
 
 type Usecases interface {
-	Register(ctx context.Context, payload *request.RegisterRequest) error
-	Login(ctx context.Context, payload *request.LoginRequest) (response.LoginResponse, error)
-	GetUser(ctx context.Context, payload *request.GetUserRequest) (response.GetUserResponse, error)
-	UpdateUser(ctx context.Context, payload *request.UpdateUserRequest) error
-	ValidateToken(ctx context.Context, payload *request.ValidateTokenRequest) error
-	GetProfile(ctx context.Context, payload *request.GetProfileRequest) (response.GetProfileResponse, error)
-	UpdateProfile(ctx context.Context, payload *request.UpdateProfileRequest) error
+	Register(ctx context.Context, payload *request.Register) error
+	Login(ctx context.Context, payload *request.Login) (response.LoginResponse, error)
+	GetUser(ctx context.Context, payload *request.GetUser) (response.GetUserResponse, error)
+	UpdateUser(ctx context.Context, payload *request.UpdateUser) error
+	ValidateToken(ctx context.Context, payload *request.ValidateToken) error
+	CreateProfile(ctx context.Context, payload *request.CreateProfile) error
+	GetProfile(ctx context.Context, payload *request.GetProfile) (response.GetProfileResponse, error)
+	UpdateProfile(ctx context.Context, payload *request.UpdateProfile) error
 }
 
 func New(repositories repositories.Repositories, log log.Logger) Usecases {

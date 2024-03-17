@@ -18,7 +18,7 @@ type UserHandler struct {
 }
 
 func (h *UserHandler) Register(ctx *fiber.Ctx) error {
-	var req request.RegisterRequest
+	var req request.Register
 	if err := ctx.BodyParser(&req); err != nil {
 		return helpers.RespError(ctx, h.Log, errors.BadRequest("bad request"))
 	}
@@ -37,7 +37,7 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 }
 
 func (h *UserHandler) Login(ctx *fiber.Ctx) error {
-	var req request.LoginRequest
+	var req request.Login
 	if err := ctx.BodyParser(&req); err != nil {
 		return helpers.RespError(ctx, h.Log, errors.BadRequest("bad request"))
 	}
@@ -57,7 +57,7 @@ func (h *UserHandler) Login(ctx *fiber.Ctx) error {
 }
 
 func (h *UserHandler) GetUser(ctx *fiber.Ctx) error {
-	var req request.GetUserRequest
+	var req request.GetUser
 	if err := ctx.QueryParser(&req); err != nil {
 		return helpers.RespError(ctx, h.Log, errors.BadRequest("bad request"))
 	}
@@ -77,7 +77,7 @@ func (h *UserHandler) GetUser(ctx *fiber.Ctx) error {
 }
 
 func (h *UserHandler) UpdateUser(ctx *fiber.Ctx) error {
-	var req request.UpdateUserRequest
+	var req request.UpdateUser
 	if err := ctx.BodyParser(&req); err != nil {
 		return helpers.RespError(ctx, h.Log, errors.BadRequest("bad request"))
 	}
@@ -95,9 +95,67 @@ func (h *UserHandler) UpdateUser(ctx *fiber.Ctx) error {
 	return helpers.RespSuccess(ctx, h.Log, nil, "update user success")
 }
 
+func (h *UserHandler) CreateProfile(ctx *fiber.Ctx) error {
+	var req request.CreateProfile
+	if err := ctx.BodyParser(&req); err != nil {
+		return helpers.RespError(ctx, h.Log, errors.BadRequest("bad request"))
+	}
+
+	// validate request
+	if err := h.Validator.Struct(req); err != nil {
+		return helpers.RespError(ctx, h.Log, errors.BadRequest(err.Error()))
+	}
+
+	// call usecase
+	if err := h.Usecase.CreateProfile(ctx.Context(), &req); err != nil {
+		return helpers.RespError(ctx, h.Log, err)
+	}
+
+	return helpers.RespSuccess(ctx, h.Log, nil, "create profile success")
+}
+
+func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
+	var req request.GetProfile
+	if err := ctx.QueryParser(&req); err != nil {
+		return helpers.RespError(ctx, h.Log, errors.BadRequest("bad request"))
+	}
+
+	// validate request
+	if err := h.Validator.Struct(req); err != nil {
+		return helpers.RespError(ctx, h.Log, errors.BadRequest(err.Error()))
+	}
+
+	// call usecase
+	resp, err := h.Usecase.GetProfile(ctx.Context(), &req)
+	if err != nil {
+		return helpers.RespError(ctx, h.Log, err)
+	}
+
+	return helpers.RespSuccess(ctx, h.Log, resp, "get profile success")
+}
+
+func (h *UserHandler) UpdateProfile(ctx *fiber.Ctx) error {
+	var req request.UpdateProfile
+	if err := ctx.BodyParser(&req); err != nil {
+		return helpers.RespError(ctx, h.Log, errors.BadRequest("bad request"))
+	}
+
+	// validate request
+	if err := h.Validator.Struct(req); err != nil {
+		return helpers.RespError(ctx, h.Log, errors.BadRequest(err.Error()))
+	}
+
+	// call usecase
+	if err := h.Usecase.UpdateProfile(ctx.Context(), &req); err != nil {
+		return helpers.RespError(ctx, h.Log, err)
+	}
+
+	return helpers.RespSuccess(ctx, h.Log, nil, "update profile success")
+}
+
 // private
 func (h *UserHandler) ValidateToken(ctx *fiber.Ctx) error {
-	var req request.ValidateTokenRequest
+	var req request.ValidateToken
 	if err := ctx.QueryParser(&req); err != nil {
 		return helpers.RespError(ctx, h.Log, errors.BadRequest("bad request"))
 	}
