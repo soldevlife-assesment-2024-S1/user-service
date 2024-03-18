@@ -58,14 +58,8 @@ func (h *UserHandler) Login(ctx *fiber.Ctx) error {
 
 func (h *UserHandler) GetUser(ctx *fiber.Ctx) error {
 	var req request.GetUser
-	if err := ctx.QueryParser(&req); err != nil {
-		return helpers.RespError(ctx, h.Log, errors.BadRequest("bad request"))
-	}
 
-	// validate request
-	if err := h.Validator.Struct(req); err != nil {
-		return helpers.RespError(ctx, h.Log, errors.BadRequest(err.Error()))
-	}
+	req.ID = ctx.Locals("userID").(int)
 
 	// call usecase
 	resp, err := h.Usecase.GetUser(ctx.Context(), &req)
@@ -116,14 +110,8 @@ func (h *UserHandler) CreateProfile(ctx *fiber.Ctx) error {
 
 func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
 	var req request.GetProfile
-	if err := ctx.QueryParser(&req); err != nil {
-		return helpers.RespError(ctx, h.Log, errors.BadRequest("bad request"))
-	}
 
-	// validate request
-	if err := h.Validator.Struct(req); err != nil {
-		return helpers.RespError(ctx, h.Log, errors.BadRequest(err.Error()))
-	}
+	req.UserID = ctx.Locals("userID").(int)
 
 	// call usecase
 	resp, err := h.Usecase.GetProfile(ctx.Context(), &req)
@@ -165,5 +153,12 @@ func (h *UserHandler) ValidateToken(ctx *fiber.Ctx) error {
 		return helpers.RespError(ctx, h.Log, errors.BadRequest(err.Error()))
 	}
 
-	return nil
+	// call usecase
+	resp, err := h.Usecase.ValidateToken(ctx.Context(), &req)
+	if err != nil {
+		return helpers.RespError(ctx, h.Log, err)
+	}
+
+	return helpers.RespSuccess(ctx, h.Log, resp, "validate token success")
+
 }

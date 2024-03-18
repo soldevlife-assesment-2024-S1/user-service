@@ -41,11 +41,12 @@ type ValidateToken struct {
 }
 
 type GetProfile struct {
-	ID int `json:"id" validate:"required"`
+	UserID int `json:"user_id" validate:"required"`
 }
 
 type UpdateProfile struct {
 	ID             int    `json:"id" validate:"required"`
+	UserID         int    `json:"user_id" validate:"required"`
 	Address        string `json:"address"`
 	District       string `json:"district"`
 	City           string `json:"city"`

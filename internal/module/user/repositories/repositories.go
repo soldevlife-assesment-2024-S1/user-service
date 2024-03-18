@@ -16,12 +16,12 @@ type repositories struct {
 	log log.Logger
 }
 
-// FindProfileByID implements Repositories.
-func (r *repositories) FindProfileByID(ctx context.Context, id int) (entity.Profile, error) {
-	query := `SELECT id, user_id, address, district, city, state, country, region, phone, personal_id, type_personal_id, created_at, updated_at FROM profiles WHERE id = $1`
+// FindProfileByUserID implements Repositories.
+func (r *repositories) FindProfileByUserID(ctx context.Context, userID int) (entity.Profile, error) {
+	query := `SELECT id, user_id, address, district, city, state, country, region, phone, personal_id, type_personal_id, created_at, updated_at FROM profiles WHERE user_id = $1`
 
 	var profile entity.Profile
-	err := r.db.GetContext(ctx, &profile, query, id)
+	err := r.db.GetContext(ctx, &profile, query, userID)
 
 	// check row not found
 	if err == sql.ErrNoRows {
@@ -114,7 +114,7 @@ type Repositories interface {
 	FindUserByEmail(ctx context.Context, email string) (entity.User, error)
 	FindUserByID(ctx context.Context, id int) (entity.User, error)
 	UpsertUser(ctx context.Context, payload *entity.User) error
-	FindProfileByID(ctx context.Context, id int) (entity.Profile, error)
+	FindProfileByUserID(ctx context.Context, userID int) (entity.Profile, error)
 	UpsertProfile(ctx context.Context, payload *entity.Profile) error
 }
 

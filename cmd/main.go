@@ -6,6 +6,7 @@ import (
 	"user-service/internal/module/user/repositories"
 	"user-service/internal/module/user/usecases"
 	"user-service/internal/pkg/database"
+	"user-service/internal/pkg/helpers/middleware"
 	"user-service/internal/pkg/http"
 	"user-service/internal/pkg/log"
 	router "user-service/internal/route"
@@ -32,6 +33,9 @@ func initService(cfg *config.Config) *fiber.App {
 
 	userRepo := repositories.New(db, logger)
 	userUsecase := usecases.New(userRepo, logger)
+	middleware := middleware.Middleware{
+		Repo: userRepo,
+	}
 
 	validator := validator.New()
 	userHandler := handler.UserHandler{
@@ -42,7 +46,7 @@ func initService(cfg *config.Config) *fiber.App {
 
 	serverHttp := http.SetupHttpEngine()
 
-	r := router.Initialize(serverHttp, &userHandler)
+	r := router.Initialize(serverHttp, &userHandler, &middleware)
 
 	return r
 

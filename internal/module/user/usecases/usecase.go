@@ -11,6 +11,8 @@ import (
 	"user-service/internal/pkg/helpers"
 	"user-service/internal/pkg/helpers/errors"
 	"user-service/internal/pkg/log"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 type usecases struct {
@@ -21,7 +23,7 @@ type usecases struct {
 // GetProfile implements Usecases.
 func (u *usecases) GetProfile(ctx context.Context, payload *request.GetProfile) (response.GetProfileResponse, error) {
 	// check if record exists
-	profile, err := u.repositories.FindProfileByID(ctx, payload.ID)
+	profile, err := u.repositories.FindProfileByUserID(ctx, payload.UserID)
 	if err != nil {
 		return response.GetProfileResponse{}, errors.InternalServerError(fmt.Sprintf("error finding profile by id: %s", err.Error()))
 	}
@@ -66,7 +68,7 @@ func (u *usecases) Login(ctx context.Context, payload *request.Login) (response.
 	// check if user exists
 	user, err := u.repositories.FindUserByEmail(ctx, payload.Email)
 	if err != nil {
-		return response.LoginResponse{}, errors.BadRequest(fmt.Sprintf("Invalid email or password", err.Error()))
+		return response.LoginResponse{}, errors.BadRequest(fmt.Sprintf("Invalid email or password %s", err.Error()))
 	}
 
 	if user.ID == 0 {
@@ -164,7 +166,7 @@ func (u *usecases) CreateProfile(ctx context.Context, payload *request.CreatePro
 // UpdateProfile implements Usecases.
 func (u *usecases) UpdateProfile(ctx context.Context, payload *request.UpdateProfile) error {
 	// check if record exists
-	profileExisting, err := u.repositories.FindProfileByID(ctx, payload.ID)
+	profileExisting, err := u.repositories.FindProfileByUserID(ctx, payload.UserID)
 	if err != nil {
 		return errors.InternalServerError(fmt.Sprintf("error finding profile by id: %s", err.Error()))
 	}
@@ -216,8 +218,49 @@ func (u *usecases) UpdateUser(ctx context.Context, payload *request.UpdateUser) 
 }
 
 // ValidateToken implements Usecases.
-func (u *usecases) ValidateToken(ctx context.Context, payload *request.ValidateToken) error {
-	panic("unimplemented")
+func (u *usecases) ValidateToken(ctx context.Context, payload *request.ValidateToken) (response.GetUserResponse, error) {
+	tokenString := payload.Token
+	// Define the secret key
+	var secret = "your-secret-key"
+	// Parse the token
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secret), nil
+	})
+	if err != nil {
+		return response.GetUserResponse{}, errors.UnauthorizedError("invalid token")
+	}
+
+	// Extract the claims
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return response.GetUserResponse{}, errors.UnauthorizedError("invalid token")
+	}
+
+	// Extract the user ID
+	userID, ok := claims["userID"].(int)
+	if !ok {
+		return response.GetUserResponse{}, errors.UnauthorizedError("invalid token")
+	}
+
+	// check if user exists
+	user, err := u.repositories.FindUserByID(ctx, userID)
+	if err != nil {
+		return response.GetUserResponse{}, errors.InternalServerError(fmt.Sprintf("error finding user by id: %s", err.Error()))
+	}
+
+	if user.ID == 0 {
+		return response.GetUserResponse{}, errors.UnauthorizedError("invalid token")
+	}
+
+	response := response.GetUserResponse{
+		ID:        user.ID,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+	}
+
+	// Return the user ID
+	return response, nil
 }
 
 type Usecases interface {
@@ -225,7 +268,7 @@ type Usecases interface {
 	Login(ctx context.Context, payload *request.Login) (response.LoginResponse, error)
 	GetUser(ctx context.Context, payload *request.GetUser) (response.GetUserResponse, error)
 	UpdateUser(ctx context.Context, payload *request.UpdateUser) error
-	ValidateToken(ctx context.Context, payload *request.ValidateToken) error
+	ValidateToken(ctx context.Context, payload *request.ValidateToken) (response.GetUserResponse, error)
 	CreateProfile(ctx context.Context, payload *request.CreateProfile) error
 	GetProfile(ctx context.Context, payload *request.GetProfile) (response.GetProfileResponse, error)
 	UpdateProfile(ctx context.Context, payload *request.UpdateProfile) error
