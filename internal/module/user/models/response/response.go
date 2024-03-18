@@ -11,10 +11,8 @@ type LoginResponse struct {
 }
 
 type GetUserResponse struct {
-	ID        int    `json:"id"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
+	ID    int    `json:"id"`
+	Email string `json:"email"`
 }
 
 type UpdateUserResponse struct {
@@ -28,6 +26,8 @@ type ValidateTokenResponse struct {
 type GetProfileResponse struct {
 	ID             int    `json:"id"`
 	UserID         int    `json:"user_id"`
+	FirstName      string `json:"first_name"`
+	LastName       string `json:"last_name"`
 	Address        string `json:"address"`
 	District       string `json:"district"`
 	City           string `json:"city"`

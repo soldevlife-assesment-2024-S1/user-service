@@ -54,10 +54,8 @@ func (u *usecases) GetUser(ctx context.Context, payload *request.GetUser) (respo
 	}
 
 	resp := response.GetUserResponse{
-		ID:        user.ID,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		Email:     user.Email,
+		ID:    user.ID,
+		Email: user.Email,
 	}
 
 	return resp, nil
@@ -117,10 +115,8 @@ func (u *usecases) Register(ctx context.Context, payload *request.Register) erro
 
 	// create user
 	user := entity.User{
-		FirstName: payload.FirstName,
-		LastName:  payload.LastName,
-		Email:     payload.Email,
-		Password:  hashedPassword,
+		Email:    payload.Email,
+		Password: hashedPassword,
 	}
 
 	if err := u.repositories.UpsertUser(ctx, &user); err != nil {
@@ -203,11 +199,9 @@ func (u *usecases) UpdateUser(ctx context.Context, payload *request.UpdateUser) 
 
 	// update user
 	user := entity.User{
-		ID:        payload.ID,
-		FirstName: payload.FirstName,
-		LastName:  payload.LastName,
-		Email:     payload.Email,
-		Password:  userExisting.Password,
+		ID:       payload.ID,
+		Email:    payload.Email,
+		Password: userExisting.Password,
 	}
 
 	if err := u.repositories.UpsertUser(ctx, &user); err != nil {
@@ -253,10 +247,8 @@ func (u *usecases) ValidateToken(ctx context.Context, payload *request.ValidateT
 	}
 
 	response := response.GetUserResponse{
-		ID:        user.ID,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		Email:     user.Email,
+		ID:    user.ID,
+		Email: user.Email,
 	}
 
 	// Return the user ID

@@ -18,7 +18,7 @@ type repositories struct {
 
 // FindProfileByUserID implements Repositories.
 func (r *repositories) FindProfileByUserID(ctx context.Context, userID int) (entity.Profile, error) {
-	query := `SELECT id, user_id, address, district, city, state, country, region, phone, personal_id, type_personal_id, created_at, updated_at FROM profiles WHERE user_id = $1`
+	query := `SELECT id, user_id, first_name, last_name, address, district, city, state, country, region, phone, personal_id, type_personal_id, created_at, updated_at FROM profiles WHERE user_id = $1`
 
 	var profile entity.Profile
 	err := r.db.GetContext(ctx, &profile, query, userID)
@@ -37,7 +37,7 @@ func (r *repositories) FindProfileByUserID(ctx context.Context, userID int) (ent
 
 // FindUserByEmail implements Repositories.
 func (r *repositories) FindUserByEmail(ctx context.Context, email string) (entity.User, error) {
-	query := `SELECT id, first_name, last_name, email, password, created_at, updated_at FROM users WHERE email = $1`
+	query := `SELECT id, email, password, created_at, updated_at FROM users WHERE email = $1`
 
 	var user entity.User
 	err := r.db.GetContext(ctx, &user, query, email)
@@ -56,7 +56,7 @@ func (r *repositories) FindUserByEmail(ctx context.Context, email string) (entit
 
 // FindUserByID implements Repositories.
 func (r *repositories) FindUserByID(ctx context.Context, id int) (entity.User, error) {
-	query := `SELECT id, first_name, last_name, email, password, created_at, updated_at FROM users WHERE id = $1`
+	query := `SELECT id, email, password, created_at, updated_at FROM users WHERE id = $1`
 
 	var user entity.User
 
@@ -76,9 +76,9 @@ func (r *repositories) FindUserByID(ctx context.Context, id int) (entity.User, e
 
 // UpsertProfile implements Repositories.
 func (r *repositories) UpsertProfile(ctx context.Context, payload *entity.Profile) error {
-	query := `INSERT INTO profiles (id, user_id, address, district, city, state, country, region, phone, personal_id, type_personal_id, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW()) ON CONFLICT (id) DO UPDATE SET address = $2, district = $3, city = $4, state = $5, country = $6, region = $7, phone = $8, personal_id = $9, type_personal_id = $10, updated_at = NOW() RETURNING id`
+	query := `INSERT INTO profiles (id, user_id, first_name, last_name, address, district, city, state, country, region, phone, personal_id, type_personal_id, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW()) ON CONFLICT (id) DO UPDATE SET first_name = $3, last_name = $4, address = $5, district = $6, city = $7, state = $8, country = $9, region = $10, phone = $11, personal_id = $12, type_personal_id = $13, updated_at = NOW() RETURNING id`
 
-	err := r.db.QueryRowContext(ctx, query, payload.ID, payload.UserID, payload.Address, payload.District, payload.City, payload.State, payload.Country, payload.Region, payload.Phone, payload.PersonalID, payload.TypePersonalID).Scan(&payload.ID)
+	err := r.db.QueryRowContext(ctx, query, payload.ID, payload.UserID, payload.FirstName, payload.LastName, payload.Address, payload.District, payload.City, payload.State, payload.Country, payload.Region, payload.Phone, payload.PersonalID, payload.TypePersonalID).Scan(&payload.ID)
 
 	// check row not found
 	if err == sql.ErrNoRows {
@@ -94,9 +94,9 @@ func (r *repositories) UpsertProfile(ctx context.Context, payload *entity.Profil
 
 // UpsertUser implements Repositories.
 func (r *repositories) UpsertUser(ctx context.Context, payload *entity.User) error {
-	query := `INSERT INTO users (first_name, last_name, email, password, created_at) VALUES ($1, $2, $3, $4, NOW()) ON CONFLICT (email) DO UPDATE SET first_name = $1, last_name = $2, password = $3, updated_at = NOW() RETURNING id`
+	query := `INSERT INTO users (email, password, created_at) VALUES ($1, $2, NOW()) ON CONFLICT (email) DO UPDATE SET password = $2, updated_at = NOW() RETURNING id`
 
-	err := r.db.QueryRowContext(ctx, query, payload.FirstName, payload.LastName, payload.Email, payload.Password).Scan(&payload.ID)
+	err := r.db.QueryRowContext(ctx, query, payload.Email, payload.Password).Scan(&payload.ID)
 
 	// check row not found
 	if err == sql.ErrNoRows {
