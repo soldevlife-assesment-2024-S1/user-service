@@ -1,10 +1,8 @@
 package request
 
 type Register struct {
-	FirstName string `json:"first_name" validate:"required"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email" validate:"required,email"`
-	Password  string `json:"password" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
 }
 
 type Login struct {
@@ -17,14 +15,14 @@ type GetUser struct {
 }
 
 type UpdateUser struct {
-	ID        int    `json:"id" validate:"required"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email" validate:"email"`
+	ID    int    `json:"id" validate:"required"`
+	Email string `json:"email" validate:"email"`
 }
 
 type CreateProfile struct {
 	UserID         int    `json:"user_id" validate:"required"`
+	FirstName      string `json:"first_name" validate:"required"`
+	LastName       string `json:"last_name"`
 	Address        string `json:"address"`
 	District       string `json:"district"`
 	City           string `json:"city"`

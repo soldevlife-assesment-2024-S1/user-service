@@ -11,11 +11,12 @@ func GenerateToken(userID int) (tokenString string, refreshToken string, expired
 	// Define the secret key
 	secret := "your-secret-key"
 
-	expiredAt = time.Now().Add(time.Hour)
+	expiredAt = time.Now().Add(time.Hour * 24)
+	expiredToken := expiredAt.Unix()
 	// Create the claims
 	claims := jwt.MapClaims{
-		"userID": userID,
-		"exp":    expiredAt,
+		"id":  userID,
+		"exp": expiredToken,
 	}
 
 	// Create the token

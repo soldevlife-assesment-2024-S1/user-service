@@ -6,6 +6,7 @@ import (
 	"go/token"
 	"time"
 	"user-service/internal/module/user/repositories"
+	"user-service/internal/pkg/log"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
@@ -13,12 +14,14 @@ import (
 
 type Middleware struct {
 	Repo repositories.Repositories
+	Log  log.Logger
 }
 
 func (m *Middleware) VerifyBearerToken(ctx *fiber.Ctx) error {
 	// get token from header
 	auth := ctx.Get("Authorization")
 	if auth == "" {
+		m.Log.Error(ctx.Context(), "error get token from header", errors.New("error get token from header"))
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Unauthorized",
 		})
@@ -27,9 +30,12 @@ func (m *Middleware) VerifyBearerToken(ctx *fiber.Ctx) error {
 	// grab token
 	token := auth[7:token.Pos(len(auth))]
 
+	fmt.Println("token", token)
+
 	// decode token
 	userID, err := decodeToken(token)
 	if err != nil {
+		m.Log.Error(ctx.Context(), "error decode token", err)
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Unauthorized",
 		})
@@ -38,6 +44,7 @@ func (m *Middleware) VerifyBearerToken(ctx *fiber.Ctx) error {
 	// validate user id
 	result, err := m.Repo.FindUserByID(ctx.Context(), userID)
 	if err != nil {
+		m.Log.Error(ctx.Context(), "error find user by id", err)
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Unauthorized",
 		})
@@ -50,7 +57,8 @@ func (m *Middleware) VerifyBearerToken(ctx *fiber.Ctx) error {
 }
 
 type CustomClaims struct {
-	UserID int `json:"id"`
+	UserID    int   `json:"id"`
+	ExpiredAt int64 `json:"exp"`
 	jwt.StandardClaims
 }
 
@@ -60,11 +68,11 @@ func decodeToken(jwtToken string) (int, error) {
 		if jwt.GetSigningMethod("HS256") != token.Method {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte("secret"), nil
+		return []byte("your-secret-key"), nil
 	})
 
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
-		if claims.StandardClaims.ExpiresAt < time.Now().Unix() {
+		if claims.ExpiredAt < time.Now().Unix() {
 			return 0, errors.New("token expired")
 		}
 		return claims.UserID, nil
