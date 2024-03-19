@@ -27,7 +27,7 @@ func Initialize(app *fiber.App, handler *handler.UserHandler, m *middleware.Midd
 	v1.Put("/profile", m.VerifyBearerToken, handler.UpdateProfile)
 
 	private := Api.Group("/private")
-	private.Get("token/validate", m.VerifyBearerToken, handler.ValidateToken)
+	private.Get("user/validate", handler.ValidateToken)
 
 	return app
 

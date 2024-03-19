@@ -3,6 +3,7 @@ package usecases
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"user-service/internal/module/user/models/entity"
 	"user-service/internal/module/user/models/request"
@@ -10,6 +11,7 @@ import (
 	"user-service/internal/module/user/repositories"
 	"user-service/internal/pkg/helpers"
 	"user-service/internal/pkg/helpers/errors"
+	"user-service/internal/pkg/helpers/middleware"
 	"user-service/internal/pkg/log"
 
 	"github.com/dgrijalva/jwt-go"
@@ -212,43 +214,55 @@ func (u *usecases) UpdateUser(ctx context.Context, payload *request.UpdateUser) 
 }
 
 // ValidateToken implements Usecases.
-func (u *usecases) ValidateToken(ctx context.Context, payload *request.ValidateToken) (response.GetUserResponse, error) {
+func (u *usecases) ValidateToken(ctx context.Context, payload *request.ValidateToken) (response.ValidateToken, error) {
 	tokenString := payload.Token
 	// Define the secret key
 	var secret = "your-secret-key"
 	// Parse the token
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	var customClaims middleware.CustomClaims
+	token, err := jwt.ParseWithClaims(tokenString, &customClaims, func(token *jwt.Token) (interface{}, error) {
+		if jwt.GetSigningMethod("HS256") != token.Method {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
 		return []byte(secret), nil
 	})
 	if err != nil {
-		return response.GetUserResponse{}, errors.UnauthorizedError("invalid token")
+		u.log.Error(ctx, "error parsing token", err)
+		return response.ValidateToken{
+			IsValid: false,
+		}, errors.UnauthorizedError("invalid token")
 	}
 
-	// Extract the claims
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok || !token.Valid {
-		return response.GetUserResponse{}, errors.UnauthorizedError("invalid token")
+	claims, ok := token.Claims.(*middleware.CustomClaims)
+	if !ok && !token.Valid {
+		return response.ValidateToken{
+			IsValid: false,
+		}, errors.UnauthorizedError("invalid token")
 	}
-
-	// Extract the user ID
-	userID, ok := claims["userID"].(int)
-	if !ok {
-		return response.GetUserResponse{}, errors.UnauthorizedError("invalid token")
+	if claims.ExpiredAt < time.Now().Unix() {
+		return response.ValidateToken{
+			IsValid: false,
+		}, errors.UnauthorizedError("token expired")
 	}
 
 	// check if user exists
-	user, err := u.repositories.FindUserByID(ctx, userID)
+	user, err := u.repositories.FindUserByID(ctx, claims.UserID)
 	if err != nil {
-		return response.GetUserResponse{}, errors.InternalServerError(fmt.Sprintf("error finding user by id: %s", err.Error()))
+		u.log.Error(ctx, "error finding user by id", err)
+		return response.ValidateToken{
+			IsValid: false,
+		}, errors.InternalServerError(fmt.Sprintf("error finding user by id: %s", err.Error()))
 	}
 
 	if user.ID == 0 {
-		return response.GetUserResponse{}, errors.UnauthorizedError("invalid token")
+		u.log.Error(ctx, "user not found", nil)
+		return response.ValidateToken{
+			IsValid: false,
+		}, errors.UnauthorizedError("invalid token")
 	}
 
-	response := response.GetUserResponse{
-		ID:    user.ID,
-		Email: user.Email,
+	response := response.ValidateToken{
+		IsValid: true,
 	}
 
 	// Return the user ID
@@ -260,7 +274,7 @@ type Usecases interface {
 	Login(ctx context.Context, payload *request.Login) (response.LoginResponse, error)
 	GetUser(ctx context.Context, payload *request.GetUser) (response.GetUserResponse, error)
 	UpdateUser(ctx context.Context, payload *request.UpdateUser) error
-	ValidateToken(ctx context.Context, payload *request.ValidateToken) (response.GetUserResponse, error)
+	ValidateToken(ctx context.Context, payload *request.ValidateToken) (response.ValidateToken, error)
 	CreateProfile(ctx context.Context, payload *request.CreateProfile) error
 	GetProfile(ctx context.Context, payload *request.GetProfile) (response.GetProfileResponse, error)
 	UpdateProfile(ctx context.Context, payload *request.UpdateProfile) error

@@ -19,8 +19,8 @@ type UpdateUserResponse struct {
 	ID int `json:"id"`
 }
 
-type ValidateTokenResponse struct {
-	Valid bool `json:"valid"`
+type ValidateToken struct {
+	IsValid bool `json:"is_valid"`
 }
 
 type GetProfileResponse struct {
