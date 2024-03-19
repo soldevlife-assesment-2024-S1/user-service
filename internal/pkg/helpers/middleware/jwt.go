@@ -30,8 +30,6 @@ func (m *Middleware) VerifyBearerToken(ctx *fiber.Ctx) error {
 	// grab token
 	token := auth[7:token.Pos(len(auth))]
 
-	fmt.Println("token", token)
-
 	// decode token
 	userID, err := decodeToken(token)
 	if err != nil {
