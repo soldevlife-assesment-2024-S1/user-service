@@ -33,6 +33,8 @@ func (u *usecases) GetProfile(ctx context.Context, payload *request.GetProfile) 
 	resp := response.GetProfileResponse{
 		ID:             profile.ID,
 		UserID:         profile.UserID,
+		FirstName:      profile.FirstName,
+		LastName:       profile.LastName,
 		Address:        profile.Address,
 		District:       profile.District,
 		City:           profile.City,
@@ -144,6 +146,8 @@ func (u *usecases) CreateProfile(ctx context.Context, payload *request.CreatePro
 	profile := entity.Profile{
 		UserID:         payload.UserID,
 		Address:        payload.Address,
+		FirstName:      payload.FirstName,
+		LastName:       payload.LastName,
 		District:       payload.District,
 		City:           payload.City,
 		State:          payload.State,
@@ -173,6 +177,8 @@ func (u *usecases) UpdateProfile(ctx context.Context, payload *request.UpdatePro
 	profile := entity.Profile{
 		ID:             payload.ID,
 		UserID:         profileExisting.UserID,
+		FirstName:      payload.FirstName,
+		LastName:       payload.LastName,
 		Address:        payload.Address,
 		District:       payload.District,
 		City:           payload.City,
@@ -217,7 +223,7 @@ func (u *usecases) UpdateUser(ctx context.Context, payload *request.UpdateUser) 
 func (u *usecases) ValidateToken(ctx context.Context, payload *request.ValidateToken) (response.ValidateToken, error) {
 	tokenString := payload.Token
 	// Define the secret key
-	var secret = "your-secret-key"
+	var secret = "secret"
 	// Parse the token
 	var customClaims middleware.CustomClaims
 	token, err := jwt.ParseWithClaims(tokenString, &customClaims, func(token *jwt.Token) (interface{}, error) {
@@ -263,6 +269,7 @@ func (u *usecases) ValidateToken(ctx context.Context, payload *request.ValidateT
 
 	response := response.ValidateToken{
 		IsValid: true,
+		UserID:  user.ID,
 	}
 
 	// Return the user ID

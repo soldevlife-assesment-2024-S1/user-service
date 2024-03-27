@@ -45,6 +45,8 @@ type GetProfile struct {
 type UpdateProfile struct {
 	ID             int    `json:"id" validate:"required"`
 	UserID         int    `json:"user_id" validate:"required"`
+	FirstName      string `json:"first_name" validate:"required"`
+	LastName       string `json:"last_name"`
 	Address        string `json:"address"`
 	District       string `json:"district"`
 	City           string `json:"city"`

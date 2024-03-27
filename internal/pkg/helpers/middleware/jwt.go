@@ -66,8 +66,12 @@ func decodeToken(jwtToken string) (int, error) {
 		if jwt.GetSigningMethod("HS256") != token.Method {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte("your-secret-key"), nil
+		return []byte("secret"), nil
 	})
+
+	if err != nil {
+		return 0, err
+	}
 
 	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
 		if claims.ExpiredAt < time.Now().Unix() {

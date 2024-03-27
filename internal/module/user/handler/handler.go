@@ -91,6 +91,7 @@ func (h *UserHandler) UpdateUser(ctx *fiber.Ctx) error {
 
 func (h *UserHandler) CreateProfile(ctx *fiber.Ctx) error {
 	var req request.CreateProfile
+
 	if err := ctx.BodyParser(&req); err != nil {
 		return helpers.RespError(ctx, h.Log, errors.BadRequest("bad request"))
 	}

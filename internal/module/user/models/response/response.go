@@ -21,6 +21,7 @@ type UpdateUserResponse struct {
 
 type ValidateToken struct {
 	IsValid bool `json:"is_valid"`
+	UserID  int  `json:"user_id"`
 }
 
 type GetProfileResponse struct {

@@ -9,7 +9,7 @@ import (
 
 func GenerateToken(userID int) (tokenString string, refreshToken string, expiredAt time.Time, err error) {
 	// Define the secret key
-	secret := "your-secret-key"
+	secret := "secret"
 
 	expiredAt = time.Now().Add(time.Hour * 24)
 	expiredToken := expiredAt.Unix()
