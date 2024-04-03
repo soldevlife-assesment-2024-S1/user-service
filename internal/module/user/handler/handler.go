@@ -163,3 +163,23 @@ func (h *UserHandler) ValidateToken(ctx *fiber.Ctx) error {
 	return helpers.RespSuccess(ctx, h.Log, resp, "validate token success")
 
 }
+
+func (h *UserHandler) GetProfilePrivate(ctx *fiber.Ctx) error {
+	var req request.GetProfile
+	if err := ctx.QueryParser(&req); err != nil {
+		return helpers.RespError(ctx, h.Log, errors.BadRequest("bad request"))
+	}
+
+	// validate request
+	if err := h.Validator.Struct(req); err != nil {
+		return helpers.RespError(ctx, h.Log, errors.BadRequest(err.Error()))
+	}
+
+	// call usecase
+	resp, err := h.Usecase.GetProfile(ctx.Context(), &req)
+	if err != nil {
+		return helpers.RespError(ctx, h.Log, err)
+	}
+
+	return helpers.RespSuccess(ctx, h.Log, resp, "get profile private success")
+}
