@@ -7,7 +7,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func GenerateToken(userID int) (tokenString string, refreshToken string, expiredAt time.Time, err error) {
+func GenerateToken(userID int, userEmail string) (tokenString string, refreshToken string, expiredAt time.Time, err error) {
 	// Define the secret key
 	secret := "secret"
 
@@ -15,8 +15,9 @@ func GenerateToken(userID int) (tokenString string, refreshToken string, expired
 	expiredToken := expiredAt.Unix()
 	// Create the claims
 	claims := jwt.MapClaims{
-		"id":  userID,
-		"exp": expiredToken,
+		"id":    userID,
+		"email": userEmail,
+		"exp":   expiredToken,
 	}
 
 	// Create the token
