@@ -20,8 +20,9 @@ type UpdateUserResponse struct {
 }
 
 type ValidateToken struct {
-	IsValid bool `json:"is_valid"`
-	UserID  int  `json:"user_id"`
+	IsValid   bool   `json:"is_valid"`
+	UserID    int    `json:"user_id"`
+	EmailUser string `json:"email_user"`
 }
 
 type GetProfileResponse struct {

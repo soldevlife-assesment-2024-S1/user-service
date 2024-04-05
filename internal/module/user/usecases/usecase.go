@@ -268,8 +268,9 @@ func (u *usecases) ValidateToken(ctx context.Context, payload *request.ValidateT
 	}
 
 	response := response.ValidateToken{
-		IsValid: true,
-		UserID:  user.ID,
+		IsValid:   true,
+		UserID:    user.ID,
+		EmailUser: user.Email,
 	}
 
 	// Return the user ID
