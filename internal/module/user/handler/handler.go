@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"strconv"
 	"user-service/internal/module/user/models/request"
 	"user-service/internal/module/user/usecases"
 	"user-service/internal/pkg/helpers"
@@ -165,16 +166,14 @@ func (h *UserHandler) ValidateToken(ctx *fiber.Ctx) error {
 }
 
 func (h *UserHandler) GetProfilePrivate(ctx *fiber.Ctx) error {
+	userID := ctx.Query("user_id")
 	var req request.GetProfile
-	if err := ctx.QueryParser(&req); err != nil {
+
+	uid, err := strconv.Atoi(userID)
+	if err != nil {
 		return helpers.RespError(ctx, h.Log, errors.BadRequest("bad request"))
 	}
-
-	// validate request
-	if err := h.Validator.Struct(req); err != nil {
-		return helpers.RespError(ctx, h.Log, errors.BadRequest(err.Error()))
-	}
-
+	req.UserID = uid
 	// call usecase
 	resp, err := h.Usecase.GetProfile(ctx.Context(), &req)
 	if err != nil {
