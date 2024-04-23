@@ -23,7 +23,7 @@ lint:
 unit-test:
 	@echo "Running tests"
 	mkdir -p ./test/coverage && \
-		go test -v ./... -coverprofile=./test/coverage/coverage.out
+		go test -v ./... -coverprofile=coverage.out
 
 coverage:
 	@echo "Running tests with coverage"
