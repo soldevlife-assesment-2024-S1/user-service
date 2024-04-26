@@ -85,15 +85,14 @@ func (u *usecases) Login(ctx context.Context, payload *request.Login) (response.
 	}
 
 	// generate token
-	token, refreshToken, expiredAt, err := helpers.GenerateToken(user.ID, user.Email)
+	token, _, expiredAt, err := helpers.GenerateToken(user.ID, user.Email)
 	if err != nil {
 		return response.LoginResponse{}, errors.InternalServerError(fmt.Sprintf("error generating token: %s", err.Error()))
 	}
 
 	resp := response.LoginResponse{
-		Token:        token,
-		RefreshToken: refreshToken,
-		ExpiredAt:    expiredAt.Unix(),
+		Token:     token,
+		ExpiredAt: expiredAt.Unix(),
 	}
 
 	return resp, nil
