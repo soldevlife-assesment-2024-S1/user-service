@@ -371,11 +371,76 @@ func TestCreateProfile(t *testing.T) {
 	defer teardown()
 
 	t.Run("success", func(t *testing.T) {
-		// your test here
+		// mock data
+		payload := &request.CreateProfile{
+			UserID:         1,
+			FirstName:      "John",
+			LastName:       "Doe",
+			Address:        "Jl. Jendral Sudirman",
+			District:       "Kota",
+			City:           "Jakarta",
+			State:          "DKI Jakarta",
+			Country:        "Indonesia",
+			Region:         "Asia",
+			Phone:          "08123456789",
+			PersonalID:     "1234567890",
+			TypePersonalID: "KTP",
+		}
+
+		mockEntity := entity.Profile{
+			UserID:         1,
+			FirstName:      "John",
+			LastName:       "Doe",
+			Address:        "Jl. Jendral Sudirman",
+			District:       "Kota",
+			City:           "Jakarta",
+			State:          "DKI Jakarta",
+			Country:        "Indonesia",
+			Region:         "Asia",
+			Phone:          "08123456789",
+			PersonalID:     "1234567890",
+			TypePersonalID: "KTP",
+		}
+
+		// mock repository
+		repositories.On("FindUserByID", ctx, payload.UserID).Return(entity.User{
+			ID: 1,
+		}, nil)
+		repositories.On("UpsertProfile", ctx, &mockEntity).Return(nil)
+
+		// run usecase
+		err := uc.CreateProfile(ctx, payload)
+
+		// assert result
+		assert.NoError(t, err)
+
 	})
 
 	t.Run("error", func(t *testing.T) {
-		// your test here
+		// mock data
+		payload := &request.CreateProfile{
+			UserID:         2,
+			FirstName:      "John",
+			LastName:       "Doe",
+			Address:        "Jl. Jendral Sudirman",
+			District:       "Kota",
+			City:           "Jakarta",
+			State:          "DKI Jakarta",
+			Country:        "Indonesia",
+			Region:         "Asia",
+			Phone:          "08123456789",
+			PersonalID:     "1234567890",
+			TypePersonalID: "KTP",
+		}
+
+		// mock repository
+		repositories.On("FindUserByID", ctx, payload.UserID).Return(entity.User{}, errors.New("error"))
+
+		// run usecase
+		err := uc.CreateProfile(ctx, payload)
+
+		// assert result
+		assert.Error(t, err)
 	})
 }
 
@@ -384,10 +449,23 @@ func TestValidateToken(t *testing.T) {
 	defer teardown()
 
 	t.Run("success", func(t *testing.T) {
-		// your test here
+		// mock data
+
+		// mock repository
+
+		// run usecase
+
+		// assert result
+
 	})
 
 	t.Run("error", func(t *testing.T) {
-		// your test here
+		// mock data
+
+		// mock repository
+
+		// run usecase
+
+		// assert result
 	})
 }
