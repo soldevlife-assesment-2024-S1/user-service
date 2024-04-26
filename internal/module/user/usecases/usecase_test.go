@@ -165,25 +165,27 @@ func TestRegister(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		// mock data
-		// payload := &request.Register{
-		// 	Email:    "test@test.com",
-		// 	Password: "password",
-		// }
+		payload := &request.Register{
+			Email:    "test@test.com",
+			Password: "password",
+		}
 
-		// hashedPassword := helpers.CheckPasswordHash(payload.Password, "password")
+		helpers.HashPasswordFunc = func(password string) (string, error) {
+			return password, nil
+		}
 
-		// // mock repository
-		// repositories.On("FindUserByEmail", ctx, payload.Email).Return(entity.User{}, nil)
-		// repositories.On("UpsertUser", ctx, &entity.User{
-		// 	Email:    payload.Email,
-		// 	Password: hashedPassword,
-		// }).Return(nil)
+		// mock repository
+		repositories.On("FindUserByEmail", ctx, payload.Email).Return(entity.User{}, nil)
+		repositories.On("UpsertUser", ctx, &entity.User{
+			Email:    payload.Email,
+			Password: payload.Password,
+		}).Return(nil)
 
-		// // run usecase
-		// err := uc.Register(ctx, payload)
+		// run usecase
+		err := uc.Register(ctx, payload)
 
-		// // assert result
-		// assert.NoError(t, err)
+		// assert result
+		assert.NoError(t, err)
 	})
 
 	t.Run("error", func(t *testing.T) {

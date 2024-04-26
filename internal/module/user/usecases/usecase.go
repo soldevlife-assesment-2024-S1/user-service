@@ -111,7 +111,7 @@ func (u *usecases) Register(ctx context.Context, payload *request.Register) erro
 	}
 
 	// hash password
-	hashedPassword, err := helpers.HashPassword(payload.Password)
+	hashedPassword, err := helpers.HashPasswordFunc(payload.Password)
 	if err != nil {
 		return errors.InternalServerError(fmt.Sprintf("error hashing password: %s", err.Error()))
 	}
