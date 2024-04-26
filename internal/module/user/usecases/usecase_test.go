@@ -9,6 +9,7 @@ import (
 	"user-service/internal/module/user/models/request"
 	"user-service/internal/module/user/models/response"
 	"user-service/internal/module/user/usecases"
+	"user-service/internal/pkg/helpers"
 	"user-service/internal/pkg/log"
 
 	"github.com/stretchr/testify/assert"
@@ -345,6 +346,26 @@ func TestLogin(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		// mock data
+		payload := &request.Login{
+			Email:    "test@test.com",
+			Password: "password",
+		}
+
+		hashedPassword, _ := helpers.HashPassword(payload.Password)
+
+		// mock repository
+		repositories.On("FindUserByEmail", ctx, payload.Email).Return(entity.User{
+			ID:       1,
+			Email:    "test@test.com",
+			Password: hashedPassword,
+		}, nil)
+
+		// run usecase
+		resp, err := uc.Login(ctx, payload)
+
+		// assert result
+		assert.NoError(t, err)
+		assert.NotEmpty(t, resp.Token)
 	})
 
 	t.Run("error", func(t *testing.T) {
@@ -451,21 +472,50 @@ func TestValidateToken(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		// mock data
 
+		user := entity.User{
+			ID:    1,
+			Email: "test@test.com",
+		}
+
+		token, _, _, _ := helpers.GenerateToken(user.ID, user.Email)
+
+		payload := &request.ValidateToken{
+			Token: token,
+		}
+
 		// mock repository
 
+		repositories.On("FindUserByID", ctx, 1).Return(entity.User{
+			ID:    1,
+			Email: "test@test.com",
+		}, nil)
 		// run usecase
+		result, err := uc.ValidateToken(ctx, payload)
 
 		// assert result
+		assert.NoError(t, err)
+		assert.Equal(t, response.ValidateToken{
+			IsValid:   true,
+			UserID:    1,
+			EmailUser: "test@test.com",
+		}, result)
 
 	})
 
 	t.Run("error", func(t *testing.T) {
 		// mock data
+		payload := &request.ValidateToken{
+			Token: "thisistoken",
+		}
 
 		// mock repository
+		repositories.On("FindUserByID", ctx, 1).Return(entity.User{}, errors.New("error"))
 
 		// run usecase
+		result, err := uc.ValidateToken(ctx, payload)
 
 		// assert result
+		assert.Error(t, err)
+		assert.Equal(t, response.ValidateToken{}, result)
 	})
 }
