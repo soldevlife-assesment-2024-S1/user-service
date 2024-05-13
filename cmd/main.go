@@ -45,6 +45,7 @@ func initService(cfg *config.Config) *fiber.App {
 	}
 
 	serverHttp := http.SetupHttpEngine()
+	http.InitTracer(cfg)
 
 	r := router.Initialize(serverHttp, &userHandler, &middleware)
 

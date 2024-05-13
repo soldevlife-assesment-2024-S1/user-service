@@ -8,11 +8,12 @@ import (
 )
 
 type Config struct {
-	Redis      RedisConfig      `envconfig:"redis"`
-	HttpServer HttpServerConfig `envconfig:"http_server"`
-	HttpClient HttpClientConfig `envconfig:"http_client"`
-	Logger     LoggerConfig     `envconfig:"logger"`
-	Database   DatabaseConfig   `envconfig:"database"`
+	Redis       RedisConfig      `envconfig:"redis"`
+	HttpServer  HttpServerConfig `envconfig:"http_server"`
+	HttpClient  HttpClientConfig `envconfig:"http_client"`
+	Logger      LoggerConfig     `envconfig:"logger"`
+	Database    DatabaseConfig   `envconfig:"database"`
+	ServiceName string           `envconfig:"service_name"`
 }
 
 type DatabaseConfig struct {
