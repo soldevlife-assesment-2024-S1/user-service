@@ -14,11 +14,13 @@ spec:
       labels:
         app: user
     spec:
+      automountServiceAccountToken: false
       containers:
         - name: user
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
           image: ghcr.io/soldevlife-assesment-2024-S1/ticket-service:latest
           ports:
             - containerPort: 8080

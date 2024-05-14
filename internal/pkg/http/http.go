@@ -7,7 +7,7 @@ import (
 	"user-service/config"
 
 	"github.com/goccy/go-json"
-	"github.com/gofiber/contrib/otelfiber"
+	"github.com/gofiber/contrib/otelfiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"go.opentelemetry.io/otel"
 	stdout "go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
@@ -19,8 +19,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
-
-var tracer = otel.Tracer("fiber-server")
 
 func SetupHttpEngine() *fiber.App {
 	// init http server
