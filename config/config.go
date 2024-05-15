@@ -8,12 +8,13 @@ import (
 )
 
 type Config struct {
-	Redis       RedisConfig      `envconfig:"redis"`
-	HttpServer  HttpServerConfig `envconfig:"http_server"`
-	HttpClient  HttpClientConfig `envconfig:"http_client"`
-	Logger      LoggerConfig     `envconfig:"logger"`
-	Database    DatabaseConfig   `envconfig:"database"`
-	ServiceName string           `envconfig:"service_name"`
+	Redis         RedisConfig         `envconfig:"redis"`
+	HttpServer    HttpServerConfig    `envconfig:"http_server"`
+	HttpClient    HttpClientConfig    `envconfig:"http_client"`
+	Logger        LoggerConfig        `envconfig:"logger"`
+	Database      DatabaseConfig      `envconfig:"database"`
+	ServiceName   string              `envconfig:"service_name"`
+	OpenTelemetry OpenTelemetryConfig `envconfig:"otel"`
 }
 
 type DatabaseConfig struct {
@@ -63,6 +64,10 @@ type HttpServerConfig struct {
 type LoggerConfig struct {
 	IsVerbose       bool   `envconfig:"logger_is_verbose"`
 	LoggerCollector string `envconfig:"logger_logger_collector"`
+}
+
+type OpenTelemetryConfig struct {
+	Endpoint string `envconfig:"otel_endpoint"`
 }
 
 func InitConfig() *Config {
