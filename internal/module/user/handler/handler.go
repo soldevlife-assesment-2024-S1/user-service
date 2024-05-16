@@ -30,7 +30,7 @@ func (h *UserHandler) Register(ctx *fiber.Ctx) error {
 	}
 
 	// call usecase
-	if err := h.Usecase.Register(ctx.Context(), &req); err != nil {
+	if err := h.Usecase.Register(ctx.UserContext(), &req); err != nil {
 		return helpers.RespError(ctx, h.Log, err)
 	}
 
@@ -49,7 +49,7 @@ func (h *UserHandler) Login(ctx *fiber.Ctx) error {
 	}
 
 	// call usecase
-	resp, err := h.Usecase.Login(ctx.Context(), &req)
+	resp, err := h.Usecase.Login(ctx.UserContext(), &req)
 	if err != nil {
 		return helpers.RespError(ctx, h.Log, err)
 	}
@@ -63,7 +63,7 @@ func (h *UserHandler) GetUser(ctx *fiber.Ctx) error {
 	req.ID = ctx.Locals("userID").(int)
 
 	// call usecase
-	resp, err := h.Usecase.GetUser(ctx.Context(), &req)
+	resp, err := h.Usecase.GetUser(ctx.UserContext(), &req)
 	if err != nil {
 		return helpers.RespError(ctx, h.Log, err)
 	}
@@ -83,7 +83,7 @@ func (h *UserHandler) UpdateUser(ctx *fiber.Ctx) error {
 	}
 
 	// call usecase
-	if err := h.Usecase.UpdateUser(ctx.Context(), &req); err != nil {
+	if err := h.Usecase.UpdateUser(ctx.UserContext(), &req); err != nil {
 		return helpers.RespError(ctx, h.Log, err)
 	}
 
@@ -103,7 +103,7 @@ func (h *UserHandler) CreateProfile(ctx *fiber.Ctx) error {
 	}
 
 	// call usecase
-	if err := h.Usecase.CreateProfile(ctx.Context(), &req); err != nil {
+	if err := h.Usecase.CreateProfile(ctx.UserContext(), &req); err != nil {
 		return helpers.RespError(ctx, h.Log, err)
 	}
 
@@ -116,7 +116,7 @@ func (h *UserHandler) GetProfile(ctx *fiber.Ctx) error {
 	req.UserID = ctx.Locals("userID").(int)
 
 	// call usecase
-	resp, err := h.Usecase.GetProfile(ctx.Context(), &req)
+	resp, err := h.Usecase.GetProfile(ctx.UserContext(), &req)
 	if err != nil {
 		return helpers.RespError(ctx, h.Log, err)
 	}
@@ -136,7 +136,7 @@ func (h *UserHandler) UpdateProfile(ctx *fiber.Ctx) error {
 	}
 
 	// call usecase
-	if err := h.Usecase.UpdateProfile(ctx.Context(), &req); err != nil {
+	if err := h.Usecase.UpdateProfile(ctx.UserContext(), &req); err != nil {
 		return helpers.RespError(ctx, h.Log, err)
 	}
 
@@ -156,7 +156,7 @@ func (h *UserHandler) ValidateToken(ctx *fiber.Ctx) error {
 	}
 
 	// call usecase
-	resp, err := h.Usecase.ValidateToken(ctx.Context(), &req)
+	resp, err := h.Usecase.ValidateToken(ctx.UserContext(), &req)
 	if err != nil {
 		return helpers.RespError(ctx, h.Log, err)
 	}
@@ -175,7 +175,7 @@ func (h *UserHandler) GetProfilePrivate(ctx *fiber.Ctx) error {
 	}
 	req.UserID = uid
 	// call usecase
-	resp, err := h.Usecase.GetProfile(ctx.Context(), &req)
+	resp, err := h.Usecase.GetProfile(ctx.UserContext(), &req)
 	if err != nil {
 		return helpers.RespError(ctx, h.Log, err)
 	}
