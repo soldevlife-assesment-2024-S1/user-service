@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"user-service/internal/module/user/models/entity"
 	"user-service/internal/pkg/helpers/errors"
-	"user-service/internal/pkg/log"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 )
 
 type repositories struct {
 	db  *sqlx.DB
-	log log.Logger
+	log *otelzap.Logger
 }
 
 // FindProfileByUserID implements Repositories.
@@ -118,7 +118,7 @@ type Repositories interface {
 	UpsertProfile(ctx context.Context, payload *entity.Profile) error
 }
 
-func New(db *sqlx.DB, log log.Logger) Repositories {
+func New(db *sqlx.DB, log *otelzap.Logger) Repositories {
 	return &repositories{
 		db:  db,
 		log: log,

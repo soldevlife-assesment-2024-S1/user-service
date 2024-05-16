@@ -6,14 +6,14 @@ import (
 	"user-service/internal/module/user/usecases"
 	"user-service/internal/pkg/helpers"
 	"user-service/internal/pkg/helpers/errors"
-	"user-service/internal/pkg/log"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 )
 
 type UserHandler struct {
-	Log       log.Logger
+	Log       *otelzap.Logger
 	Validator *validator.Validate
 	Usecase   usecases.Usecases
 }

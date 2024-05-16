@@ -13,20 +13,19 @@ import (
 	"user-service/internal/pkg/log"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 )
 
 var (
 	repositories *mocks.Repositories
-	logTest      *log.Logger
+	logTest      *otelzap.Logger
 	uc           usecases.Usecases
 	ctx          context.Context
 )
 
 func setup() {
 	repositories = new(mocks.Repositories)
-	logZap := log.SetupLogger()
-	log.Init(logZap)
-	logTest := log.GetLogger()
+	logTest := log.Setup()
 	uc = usecases.New(repositories, logTest)
 	ctx = context.Background()
 }

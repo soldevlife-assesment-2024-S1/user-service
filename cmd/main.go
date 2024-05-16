@@ -27,9 +27,7 @@ func main() {
 func initService(cfg *config.Config) *fiber.App {
 	db := database.GetConnection(&cfg.Database)
 	// redis := redis.SetupClient(&cfg.Redis)
-	logZap := log.SetupLogger()
-	log.Init(logZap)
-	logger := log.GetLogger()
+	logger := log.Setup()
 
 	userRepo := repositories.New(db, logger)
 	userUsecase := usecases.New(userRepo, logger)

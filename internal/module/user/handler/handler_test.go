@@ -14,12 +14,13 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"github.com/valyala/fasthttp"
 )
 
 var (
 	usecases      *mocks.Usecases
-	logTest       *log.Logger
+	logTest       *otelzap.Logger
 	h             handler.UserHandler
 	validatorTest *validator.Validate
 	app           *fiber.App
@@ -27,9 +28,7 @@ var (
 
 func setup() {
 	usecases = new(mocks.Usecases)
-	logZap := log.SetupLogger()
-	log.Init(logZap)
-	logTest := log.GetLogger()
+	logTest := log.Setup()
 	validatorTest = validator.New()
 	h = handler.UserHandler{
 		Log:       logTest,

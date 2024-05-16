@@ -12,14 +12,14 @@ import (
 	"user-service/internal/pkg/helpers"
 	"user-service/internal/pkg/helpers/errors"
 	"user-service/internal/pkg/helpers/middleware"
-	"user-service/internal/pkg/log"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 )
 
 type usecases struct {
 	repositories repositories.Repositories
-	log          log.Logger
+	log          *otelzap.Logger
 }
 
 // GetProfile implements Usecases.
@@ -74,13 +74,13 @@ func (u *usecases) Login(ctx context.Context, payload *request.Login) (response.
 	}
 
 	if user.ID == 0 {
-		u.log.Error(ctx, "user not found", nil)
+		u.log.Ctx(ctx).Error("user not found")
 		return response.LoginResponse{}, errors.BadRequest("Invalid email or password")
 	}
 
 	// check if password is correct
 	if err := helpers.CheckPasswordHash(payload.Password, user.Password); err != nil {
-		u.log.Error(ctx, "invalid password", err)
+		u.log.Ctx(ctx).Error(fmt.Sprintf("error checking password: %s", err.Error()))
 		return response.LoginResponse{}, errors.BadRequest("Invalid email or password")
 	}
 
@@ -232,7 +232,7 @@ func (u *usecases) ValidateToken(ctx context.Context, payload *request.ValidateT
 		return []byte(secret), nil
 	})
 	if err != nil {
-		u.log.Error(ctx, "error parsing token", err)
+		u.log.Ctx(ctx).Error(fmt.Sprintf("error decode token: %s", err.Error()))
 		return response.ValidateToken{
 			IsValid: false,
 		}, errors.UnauthorizedError("invalid token")
@@ -253,14 +253,14 @@ func (u *usecases) ValidateToken(ctx context.Context, payload *request.ValidateT
 	// check if user exists
 	user, err := u.repositories.FindUserByID(ctx, claims.UserID)
 	if err != nil {
-		u.log.Error(ctx, "error finding user by id", err)
+		u.log.Ctx(ctx).Error(fmt.Sprintf("error finding user by id: %s", err.Error()))
 		return response.ValidateToken{
 			IsValid: false,
 		}, errors.InternalServerError(fmt.Sprintf("error finding user by id: %s", err.Error()))
 	}
 
 	if user.ID == 0 {
-		u.log.Error(ctx, "user not found", nil)
+		u.log.Ctx(ctx).Error("user not found")
 		return response.ValidateToken{
 			IsValid: false,
 		}, errors.UnauthorizedError("invalid token")
@@ -287,7 +287,7 @@ type Usecases interface {
 	UpdateProfile(ctx context.Context, payload *request.UpdateProfile) error
 }
 
-func New(repositories repositories.Repositories, log log.Logger) Usecases {
+func New(repositories repositories.Repositories, log *otelzap.Logger) Usecases {
 	return &usecases{
 		repositories: repositories,
 		log:          log,

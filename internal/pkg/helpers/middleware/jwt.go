@@ -6,22 +6,22 @@ import (
 	"go/token"
 	"time"
 	"user-service/internal/module/user/repositories"
-	"user-service/internal/pkg/log"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 )
 
 type Middleware struct {
 	Repo repositories.Repositories
-	Log  log.Logger
+	Log  *otelzap.Logger
 }
 
 func (m *Middleware) VerifyBearerToken(ctx *fiber.Ctx) error {
 	// get token from header
 	auth := ctx.Get("Authorization")
 	if auth == "" {
-		m.Log.Error(ctx.Context(), "error get token from header", errors.New("error get token from header"))
+		m.Log.Ctx(ctx.Context()).Error("error get token from header")
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Unauthorized",
 		})
@@ -33,7 +33,7 @@ func (m *Middleware) VerifyBearerToken(ctx *fiber.Ctx) error {
 	// decode token
 	userID, err := decodeToken(token)
 	if err != nil {
-		m.Log.Error(ctx.Context(), "error decode token", err)
+		m.Log.Ctx(ctx.Context()).Error(fmt.Sprintf("error decode token: %s", err.Error()))
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Unauthorized",
 		})
@@ -42,7 +42,7 @@ func (m *Middleware) VerifyBearerToken(ctx *fiber.Ctx) error {
 	// validate user id
 	result, err := m.Repo.FindUserByID(ctx.Context(), userID)
 	if err != nil {
-		m.Log.Error(ctx.Context(), "error find user by id", err)
+		m.Log.Ctx(ctx.Context()).Error(fmt.Sprintf("error find user by id: %s", err.Error()))
 		return ctx.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Unauthorized",
 		})
