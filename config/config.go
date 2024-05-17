@@ -19,7 +19,7 @@ type Config struct {
 
 type DatabaseConfig struct {
 	Host         string `envconfig:"database_host"`
-	Port         string `envconfig:"database_port"`
+	Port         int    `envconfig:"database_port"`
 	Username     string `envconfig:"database_username"`
 	Password     string `envconfig:"database_password"`
 	DBName       string `envconfig:"database_db_name"`
