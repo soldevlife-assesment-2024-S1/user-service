@@ -8,18 +8,18 @@ import (
 )
 
 type Config struct {
-	Redis         RedisConfig         `envconfig:"redis"`
-	HttpServer    HttpServerConfig    `envconfig:"http_server"`
-	HttpClient    HttpClientConfig    `envconfig:"http_client"`
-	Logger        LoggerConfig        `envconfig:"logger"`
-	Database      DatabaseConfig      `envconfig:"database"`
-	ServiceName   string              `envconfig:"service_name"`
-	OpenTelemetry OpenTelemetryConfig `envconfig:"otel"`
+	Redis         RedisConfig
+	HttpServer    HttpServerConfig
+	HttpClient    HttpClientConfig
+	Logger        LoggerConfig
+	Database      DatabaseConfig
+	ServiceName   string `envconfig:"service_name"`
+	OpenTelemetry OpenTelemetryConfig
 }
 
 type DatabaseConfig struct {
 	Host         string `envconfig:"database_host"`
-	Port         int    `envconfig:"database_port"`
+	Port         string `envconfig:"database_port"`
 	Username     string `envconfig:"database_username"`
 	Password     string `envconfig:"database_password"`
 	DBName       string `envconfig:"database_db_name"`
