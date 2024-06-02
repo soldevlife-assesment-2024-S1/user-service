@@ -76,7 +76,7 @@ func (r *repositories) FindUserByID(ctx context.Context, id int) (entity.User, e
 
 // UpsertProfile implements Repositories.
 func (r *repositories) UpsertProfile(ctx context.Context, payload *entity.Profile) error {
-	query := `INSERT INTO profiles (id, user_id, first_name, last_name, address, district, city, state, country, region, phone, personal_id, type_personal_id, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW()) ON CONFLICT (id) DO UPDATE SET first_name = $3, last_name = $4, address = $5, district = $6, city = $7, state = $8, country = $9, region = $10, phone = $11, personal_id = $12, type_personal_id = $13, updated_at = NOW() RETURNING id`
+	query := `INSERT INTO profiles (user_id, first_name, last_name, address, district, city, state, country, region, phone, personal_id, type_personal_id, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW()) ON CONFLICT (user_id) DO UPDATE SET first_name = $3, last_name = $4, address = $5, district = $6, city = $7, state = $8, country = $9, region = $10, phone = $11, personal_id = $12, type_personal_id = $13, updated_at = NOW() RETURNING id`
 
 	err := r.db.QueryRowContext(ctx, query, payload.ID, payload.UserID, payload.FirstName, payload.LastName, payload.Address, payload.District, payload.City, payload.State, payload.Country, payload.Region, payload.Phone, payload.PersonalID, payload.TypePersonalID).Scan(&payload.ID)
 
