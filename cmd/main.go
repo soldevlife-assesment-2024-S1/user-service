@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"user-service/config"
 	"user-service/internal/module/user/handler"
 	"user-service/internal/module/user/repositories"
@@ -43,7 +45,26 @@ func initService(cfg *config.Config) *fiber.App {
 	}
 
 	serverHttp := http.SetupHttpEngine()
-	http.InitTracer(cfg)
+	ctx := context.Background()
+	conn, serviceName, err := http.InitConn(cfg)
+	if err != nil {
+		logger.Ctx(ctx).Fatal(fmt.Sprintf("Failed to create gRPC connection to collector: %v", err))
+	}
+
+	// setup tracer
+	tracerProvider := http.InitTracer(conn, serviceName)
+	defer tracerProvider.Shutdown(ctx)
+
+	// setup matrics
+	meterProvider, err := http.InitMeterProvider(conn, serviceName)
+	if err != nil {
+		logger.Ctx(ctx).Fatal(fmt.Sprintf("Failed to create meter provider: %v", err))
+	}
+	defer func() {
+		if err := meterProvider(ctx); err != nil {
+			logger.Ctx(ctx).Fatal(fmt.Sprintf("Failed to create meter provider: %v", err))
+		}
+	}()
 
 	r := router.Initialize(serverHttp, &userHandler, &middleware)
 
