@@ -52,19 +52,13 @@ func initService(cfg *config.Config) *fiber.App {
 	}
 
 	// setup tracer
-	tracerProvider := http.InitTracer(conn, serviceName)
-	defer tracerProvider.Shutdown(ctx)
+	http.InitTracer(conn, serviceName)
 
-	// setup matrics
-	meterProvider, err := http.InitMeterProvider(conn, serviceName)
+	// setup metric
+	_, err = http.InitMeterProvider(conn, serviceName)
 	if err != nil {
 		logger.Ctx(ctx).Fatal(fmt.Sprintf("Failed to create meter provider: %v", err))
 	}
-	defer func() {
-		if err := meterProvider(ctx); err != nil {
-			logger.Ctx(ctx).Fatal(fmt.Sprintf("Failed to create meter provider: %v", err))
-		}
-	}()
 
 	r := router.Initialize(serverHttp, &userHandler, &middleware)
 
