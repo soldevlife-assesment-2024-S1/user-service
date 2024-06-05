@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"time"
 	"user-service/config"
 
@@ -24,6 +25,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"go.opentelemetry.io/contrib/instrumentation/host"
 )
 
 func SetupHttpEngine() *fiber.App {
@@ -115,6 +117,19 @@ func InitMeterProvider(conn *grpc.ClientConn, serviceName string) (func(context.
 	)
 	otel.SetMeterProvider(meterProvider)
 	otel.Meter("soldevlife")
+
+	go func() {
+		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+		defer cancel()
+
+		log.Print("Starting host instrumentation:")
+		err = host.Start(host.WithMeterProvider(meterProvider))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		<-ctx.Done()
+	}()
 
 	return meterProvider.Shutdown, nil
 }

@@ -3,10 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
-	"os/signal"
-	"time"
 	"user-service/config"
 	"user-service/internal/module/user/handler"
 	"user-service/internal/module/user/repositories"
@@ -19,26 +15,12 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-	"go.opentelemetry.io/contrib/instrumentation/runtime"
 )
 
 func main() {
 	cfg := config.InitConfig()
 
 	app := initService(cfg)
-
-	go func() {
-		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
-		defer cancel()
-
-		log.Print("Starting host instrumentation:")
-		err = host.Start(host.WithMeterProvider(provider))
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		<-ctx.Done()
-	}()
 
 	// start http server
 	http.StartHttpServer(app, cfg.HttpServer.Port)
