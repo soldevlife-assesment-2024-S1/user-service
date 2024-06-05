@@ -31,8 +31,8 @@ func main() {
 		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 		defer cancel()
 
-		log.Print("Starting runtime instrumentation:")
-		err := runtime.Start(runtime.WithMinimumReadMemStatsInterval(time.Second))
+		log.Print("Starting host instrumentation:")
+		err = host.Start(host.WithMeterProvider(provider))
 		if err != nil {
 			log.Fatal(err)
 		}

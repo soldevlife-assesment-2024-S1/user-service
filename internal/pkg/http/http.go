@@ -115,6 +115,7 @@ func InitMeterProvider(conn *grpc.ClientConn, serviceName string) (func(context.
 	)
 	otel.SetMeterProvider(meterProvider)
 	otel.Meter("soldevlife")
+
 	return meterProvider.Shutdown, nil
 }
 
