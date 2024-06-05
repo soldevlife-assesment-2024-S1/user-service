@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"time"
 	"user-service/config"
 	"user-service/internal/module/user/handler"
 	"user-service/internal/module/user/repositories"
@@ -10,17 +14,31 @@ import (
 	"user-service/internal/pkg/database"
 	"user-service/internal/pkg/helpers/middleware"
 	"user-service/internal/pkg/http"
-	"user-service/internal/pkg/log"
+	log_internal "user-service/internal/pkg/log"
 	router "user-service/internal/route"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"go.opentelemetry.io/contrib/instrumentation/runtime"
 )
 
 func main() {
 	cfg := config.InitConfig()
 
 	app := initService(cfg)
+
+	go func() {
+		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+		defer cancel()
+
+		log.Print("Starting runtime instrumentation:")
+		err := runtime.Start(runtime.WithMinimumReadMemStatsInterval(time.Second))
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		<-ctx.Done()
+	}()
 
 	// start http server
 	http.StartHttpServer(app, cfg.HttpServer.Port)
@@ -29,7 +47,7 @@ func main() {
 func initService(cfg *config.Config) *fiber.App {
 	db := database.GetConnection(&cfg.Database)
 	// redis := redis.SetupClient(&cfg.Redis)
-	logger := log.Setup()
+	logger := log_internal.Setup()
 
 	userRepo := repositories.New(db, logger)
 	userUsecase := usecases.New(userRepo, logger)
