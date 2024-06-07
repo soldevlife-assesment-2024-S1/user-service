@@ -11,6 +11,7 @@ import (
 	"user-service/internal/pkg/helpers/middleware"
 	"user-service/internal/pkg/http"
 	log_internal "user-service/internal/pkg/log"
+	"user-service/internal/pkg/observability"
 	router "user-service/internal/route"
 
 	"github.com/go-playground/validator/v10"
@@ -46,16 +47,19 @@ func initService(cfg *config.Config) *fiber.App {
 
 	serverHttp := http.SetupHttpEngine()
 	ctx := context.Background()
-	conn, serviceName, err := http.InitConn(cfg)
+	conn, serviceName, err := observability.InitConn(cfg)
 	if err != nil {
 		logger.Ctx(ctx).Fatal(fmt.Sprintf("Failed to create gRPC connection to collector: %v", err))
 	}
 
+	// setup log
+	observability.InitLogOtel(conn, serviceName)
+
 	// setup tracer
-	http.InitTracer(conn, serviceName)
+	observability.InitTracer(conn, serviceName)
 
 	// setup metric
-	_, err = http.InitMeterProvider(conn, serviceName)
+	_, err = observability.InitMeterProvider(conn, serviceName)
 	if err != nil {
 		logger.Ctx(ctx).Fatal(fmt.Sprintf("Failed to create meter provider: %v", err))
 	}
